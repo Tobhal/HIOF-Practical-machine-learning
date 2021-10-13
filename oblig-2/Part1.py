@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.lib.function_base import iterable
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -77,13 +78,15 @@ def plotThing1(iter, iterations, layers, iterationIncreas=0, layersIncrease=0, p
         if layer < 1:
             layer = 1
 
-        score = runMLPC(maxIter=it, nLayers=(layer,))
+        score = run(maxIter=it, nLayers=(8,8,8,8))
         score = np.mean(score)
         scores.append(score)
 
     # print(scores)
     if plot:
         plt.plot(range(iter), scores)
+        plt.xlabel(f'Num of iteration')
+        plt.ylabel(f'Score (median of 5 runs)')
         plt.show()
 
     return scores
@@ -107,14 +110,14 @@ def plotThing2(iter, iterations, layers, plot = False):
     return scores
 
 def plotMulti():
-    i = 50
+    i = 15
 
-    plt.plot(plotThing1(i,  0, 0, iterationIncreas=0, layersIncrease=10), label="1")
-    plt.plot(plotThing1(i, 10, 0, iterationIncreas=0, layersIncrease=10), label="2")
-    plt.plot(plotThing1(i, 20, 0, iterationIncreas=0, layersIncrease=10), label="3")
-    plt.plot(plotThing1(i, 30, 0, iterationIncreas=0, layersIncrease=10), label="4")
-    plt.plot(plotThing1(i, 40, 0, iterationIncreas=0, layersIncrease=10), label="5")
-    plt.plot(plotThing1(i, 50, 0, iterationIncreas=0, layersIncrease=10), label="6")
+    plt.plot(plotThing1(i,  0, 0, iterationIncreas=0, layersIncrease=0), label="1")
+    plt.plot(plotThing1(i, 10, 0, iterationIncreas=0, layersIncrease=0), label="2")
+    plt.plot(plotThing1(i, 20, 0, iterationIncreas=0, layersIncrease=0), label="3")
+    plt.plot(plotThing1(i, 30, 0, iterationIncreas=0, layersIncrease=0), label="4")
+    plt.plot(plotThing1(i, 40, 0, iterationIncreas=0, layersIncrease=0), label="5")
+    plt.plot(plotThing1(i, 50, 0, iterationIncreas=0, layersIncrease=0), label="6")
 
     plt.legend()
     plt.xlabel('Num itterations')
@@ -164,19 +167,26 @@ def plotMulti3():
     """
     it = 3
 
+    iterations = 100
+
     startLayers = 1
     startNumLayers = 8
     layersSize = 0
 
-    for i in range(1, 15):
+    start = 1
+    end = 15
+
+    for i in range(start, end):
         labelString = f'{startNumLayers + (layersSize*i)}'
 
-        plt.bar(i, plotThing2(it, 300, 
+        plt.bar(i, plotThing2(it, # Number of model iterations
+                             iterations, # Number of iterations used in the model
                              # Adds more layers to the hidden layer, all with the same amount of nodes
                              tuple(startNumLayers + (layersSize) for l in range(startLayers+i))),
                 label=str(labelString))
 
     #plt.legend(title='Num layers')
+    plt.title(f'Score for {iterations} iterations of {start} to {end}')
     plt.xlabel(f'Num hidden layers of {startNumLayers} nodes')
     plt.ylabel(f'Score (mean of {it} runs per layer)')
     plt.show()
@@ -188,16 +198,16 @@ if __name__ == '__main__':
     # Incrase the itteration
     # Incrase the hidden layesr
     
-    # plotThing1(50, 50, 0, iterationIncreas=0, layersIncrease=10, plot=True)
+    # plotThing1(30, 0, 0, iterationIncreas=10, plot=True)
     # plotThing1(50, 0, 100, iterationIncreas=1, layersIncrease=0, plot=True)
 
     # plotMulti()
     # plotMulti2()
     # plotMulti3()
 
-    # run(iterations=1, nLayers=(5,5,5,5,5,5,5,), printScore=True)
+    run(iterations=5, nLayers=(8,8,8,8), maxIter=150, printScore=True)
 
-    print(runMLPC(printProb=True))
+    # print(runMLPC(printProb=True))
     
 
     
