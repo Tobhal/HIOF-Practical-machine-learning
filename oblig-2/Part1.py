@@ -198,14 +198,14 @@ if __name__ == '__main__':
     # Incrase the itteration
     # Incrase the hidden layesr
     
-    # plotThing1(30, 0, 0, iterationIncreas=10, plot=True)
+    plotThing1(30, 0, 0, iterationIncreas=10, plot=True)
     # plotThing1(50, 0, 100, iterationIncreas=1, layersIncrease=0, plot=True)
 
     # plotMulti()
     # plotMulti2()
     # plotMulti3()
 
-    run(iterations=5, nLayers=(8,8,8,8), maxIter=150, printScore=True)
+    # run(iterations=5, nLayers=(8,8,8,8), maxIter=150, printScore=True)
 
     # print(runMLPC(printProb=True))
     
