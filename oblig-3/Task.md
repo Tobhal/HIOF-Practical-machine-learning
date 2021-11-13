@@ -6,6 +6,6 @@ Use the ALS dataset. his casestudy examines the patterns, symmetries, associatio
 2. Perform summary and preliminary visualization.
 3. Normalize the data, and analyzethe result of normalization.
 4. For k-means clustering:
-    - Train a k-meansmodel on the data, select kusing any of themethodsdescribed during the lectures.
-    - Determine the clustering, anddescribe the clusters in terms of all variables used in the clustering.
+    - Train a k-meansmodel on the data, select k using any of the methods described during the lectures.
+    - Determine the clustering, and describe the clusters in terms of all variables used in the clustering.
 5. Repeat the exercise with more and fewer clusters, and analyze if the new solutions are better than the original solution!
