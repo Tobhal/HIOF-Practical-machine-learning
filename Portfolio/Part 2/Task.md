@@ -30,6 +30,9 @@ You should write a report answering the points below.
 3. In GA, the parameter values (population size, generation number, crossover rate, and mutation rate) often have some form of relationship. Considering that you tested several sets of parameter values, what relationship did you observe among these parameter values?
 
 # Sources
+- https://hiof.instructure.com/courses/5088/files/folder/Lecture%20Slides/W_10?preview=1015987
+- https://www.kite.com/python/answers/how-to-generate-a-random-color-for-a-matplotlib-plot-in-python
+
 - https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html
 - https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html#scipy.optimize.OptimizeResult
 - https://machinelearningmastery.com/differential-evolution-global-optimization-with-python/
