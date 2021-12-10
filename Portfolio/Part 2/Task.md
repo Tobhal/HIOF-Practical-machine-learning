@@ -33,6 +33,16 @@ You should write a report answering the points below.
 - https://hiof.instructure.com/courses/5088/files/folder/Lecture%20Slides/W_10?preview=1015987
 - https://www.kite.com/python/answers/how-to-generate-a-random-color-for-a-matplotlib-plot-in-python
 
+## Easy solution
+- https://github.com/mpinta/evovrp
+
+## Research
+- https://ieeexplore.ieee.org/document/8679429
+- https://github.com/markusmkim/GA-MDVRP
+- https://github.com/Nikronic/Optimized-MDVRPc
+- https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.207.9651&rep=rep1&type=pdf
+- https://ieeexplore.ieee.org/abstract/document/4840417
+
 - https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html
 - https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html#scipy.optimize.OptimizeResult
 - https://machinelearningmastery.com/differential-evolution-global-optimization-with-python/

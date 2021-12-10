@@ -1,10 +1,17 @@
 class Costumer:
     def __init__(self, i, x, y, d, q):
         self.i = int(i)
-        self.x = int(x) # Position
-        self.y = int(y) # Position
-        self.duration = int(d) # Service duration
-        self.load = int(q) # Load
+        self.x = int(x)         # Position
+        self.y = int(y)         # Position
+        self.duration = int(d)  # Service duration
+        self.load = int(q)      # Load
+
+        self.isBorderCostumer = False
+
+        self.possibleDepots = []
+
+    def addPossibleDepots(self, d):
+        self.possibleDepots.append(d)
 
     def __str__(self):
         return f'Costumer {self.i}:\n\
