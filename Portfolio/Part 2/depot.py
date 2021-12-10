@@ -76,7 +76,7 @@ class Depot:
     def __str__(self):
         vehiclesString = ''
         for vehicle in self.vehicles:
-            vehiclesString += f'    Vehicle {vehicle.id + 1}:\n\
+            vehiclesString += f'    Vehicle {vehicle.id}:\n\
       route {len(vehicle.getRouteID())}: {vehicle.getRoute()}\n\
       max duration: {vehicle.maxDuration}\n\
       max load: {vehicle.maxLoad}\n\

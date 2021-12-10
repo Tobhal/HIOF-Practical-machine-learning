@@ -65,12 +65,12 @@ class Vehicle:
         calcRoute = self.getRoute()
         totalDistance = 0
 
-        for i in range(1, len(self.route)):
-            prevRoute = self.route[i - 1]
-            thisRoute = self.route[i]
+        for i in range(1, len(calcRoute)):
+            prevRoute = calcRoute[i - 1]
+            thisRoute = calcRoute[i]
 
-            xDistance = abs(prevRoute.x - thisRoute.x)
-            yDistance = abs(prevRoute.y - thisRoute.y)
+            xDistance = abs(prevRoute[0] - thisRoute[0])
+            yDistance = abs(prevRoute[1] - thisRoute[1])
             
             totalDistance += math.sqrt((xDistance**2) + (yDistance**2))
 

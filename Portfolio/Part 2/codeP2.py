@@ -23,6 +23,8 @@ costumers = []
 costumersDistribute = []
 costumersSwappable = []
 
+totalVehicles = 0
+
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 xMax = 0
@@ -32,7 +34,10 @@ yMin = 0
 
 borderLineThreshold = 0.5
 
-shortestDistance = []
+# Dist to store the lowest distance and its generation (generation: distance)
+shortestDistance = dict()
+
+parensToKeep = 20
 
 def updateMinMax(x, y):
     global xMax, xMin, yMax, yMin
@@ -45,10 +50,14 @@ def updateMinMax(x, y):
     yMin = y if y < yMin else yMin
 
 def parseFile(fileName):
+    global totalVehicles
+
     with open(f'DataFiles/{fileName}.txt') as file:
 
         # Parse first line
         m, n, t = file.readline().split()
+
+        totalVehicles = int(m) * int(t)
 
         # Set up depots
         for i in range(int(t)):
@@ -90,7 +99,7 @@ def calcDistance(ax, ay, bx, by):
 # GA algorithm
 #
 def GA():
-    global costumersDistribute, depots
+    global costumersDistribute, depots, shortestDistance
 
     # 2. Random distribution
     distrobuteCostumersToDepot(costumersDistribute, depots)
@@ -99,27 +108,30 @@ def GA():
 
     # 3. Evaluate the fitness
     ## Sort the shortest distance first, unless it is 0 then last
-    allVehicles, totalDistance = evaluateFitness(depots)
+    ## Because that vehicle is not contributing to the total delivering
+    bestVehicle, totalDistance = evaluateFitness(depots)
     print(totalDistance)
+    shortestDistance[0] = totalDistance
+
 
     # for vehicle in allVehicles:
     #     print(f'D={vehicle.depot.i} V={vehicle.id}: Distance={vehicle.getDistance()}')
 
     # 4. while not termination condition
-    # t = 1
-    # while (1 < 20):
-    #     # 5. Select parents
-    #     # parents = selectParents(allVehicles)
+    for t in range(1, 20):
+        # 5. Select parents
+        parents = []
+        for _ in range(totalVehicles):
+            parents.append(selectParents(bestVehicle))
 
-    #     # 6. Apply crossover
-    #     # offspring = applyCrossover(parents)
+        # 6. Apply crossover
+        offspring = applyCrossover(parents)
 
-    #     # 7. Apply mutation
-    #     # offspring = applyMutation(offspring)
+        # 7. Apply mutation
+        # offspring = applyMutation(offspring)
 
-    #     # allVehicles = evaluateFitness(offspring)
-    #     pass
-    # pass    
+        # allVehicles = evaluateFitness(offspring)
+        pass
 
 def distrubeCostumersRandomly(costumers: list[Costumer], depots: list[Depot]) -> bool:
     random.shuffle(costumers)
@@ -172,7 +184,7 @@ def distrobuteCostumersToDepot(costumers: list[Costumer], depots:list[Depot]) ->
         if isBorderCostumer:
             costumersSwappable.append(costumer)
 
-def evaluateFitness(depots: list[Depot]) -> list[Vehicle]:
+def evaluateFitness(depots: list[Depot]) -> list[Vehicle] and int:
     allVehicles = []
     totalDistance = 0
     
@@ -181,13 +193,31 @@ def evaluateFitness(depots: list[Depot]) -> list[Vehicle]:
             allVehicles.append(vehicle)
             totalDistance += vehicle.getDistance()
 
-    return sorted(allVehicles, key=lambda x: x.getDistance()), totalDistance
+    return sorted(allVehicles, key=lambda x: x.getDistance() if x.getDistance() != 0 else sys.maxsize), totalDistance
 
-def selectParents(routes: list[Vehicle]) -> list[Vehicle]:
+
+def selectParents(routes: list[Vehicle]) -> tuple[Vehicle, Vehicle]:
+    """
+    Selecting parens using a form of turnament
+    """
+    parent1 = runTurnament(random.choice(routes), random.choice(routes), 0.8)
+    parent2 = runTurnament(random.choice(routes), random.choice(routes), 0.8)
+
+    return (parent1, parent2)
+
+def runTurnament(parent1: Vehicle, parent2: Vehicle, bias: int) -> Vehicle:
+    if random.uniform(0, 1) < bias:
+        if parent2.getDistance() < parent1.getDistance():
+            return parent2
+    else:
+        if random.uniform(0, 1) < 0.5:
+             return parent2
+    return parent1
+
+
+def applyCrossover(parents: list[tuple[Vehicle, Vehicle]]) -> list[Vehicle]:
     pass
 
-def applyCrossover(parents: list[Vehicle]) -> list[Vehicle]:
-    pass
 
 def applyMutation(offspring: list[Vehicle]) -> list[Vehicle]:
     pass
@@ -213,6 +243,10 @@ def testThing(fileNum):
     borderLineThreshold = 0.5
 
     shortestDistance = [] 
+
+    parensToKeep = 20
+
+    totalVehicles = 0
 
     num = fileNum if fileNum > 10 else f'0{fileNum}'
 
@@ -253,7 +287,7 @@ if __name__ == '__main__':
     # testThing(1)
     # testForErrors()
 
-    parseFile(f'p01')
+    parseFile(f'p20')
 
     padding = 5
     ax.set_xlim(xMin - padding, xMax + padding)
@@ -270,5 +304,5 @@ if __name__ == '__main__':
 
 """
 FIX: Not able to distrobute costumers correctly: [4, 6, 7, 10, 11]
-TODO: Refactor x,y to vec2?
+TODO: Refactor x,y to vec2? call it coord
 """
