@@ -1,5 +1,5 @@
 from costumer import Costumer
-import math, random
+import math, random, copy
 
 class Vehicle:
     def __init__(self, id, maxDuration, maxLoad, depot):
@@ -33,6 +33,41 @@ class Vehicle:
             self.route.append(costumer)
             self.currentLoad += costumer.load
 
+    def addCostumerIndex(self, costumer: Costumer, index: int) -> None:
+        if not costumer in self.route:
+            self.route.insert(index, costumer)
+            self.currentLoad += costumer.load
+
+    def removeCostumer(self, costumer: Costumer) -> None:
+        if costumer in self.route:
+            self.currentLoad -= costumer.load
+            self.route.remove(costumer)
+
+    def addCostumerOptimal(self, costumer: Costumer) -> bool:
+        """
+        Add costumer to the optimal place in the route
+        """
+        if not costumer in self.route and self.canAddCostumer(costumer):
+            testRoute = copy.deepcopy(self.route)
+            bestRoute = testRoute
+            bestRouteDistance = Vehicle.calcDistance(Vehicle.genFullroute(bestRoute, self.depot.x, self.depot.y))
+
+            # NOTE: add -1 to len(testRoute) if things do not work?
+            for i in range(1, len(testRoute)):
+                tmpRoute = copy.deepcopy(testRoute)
+                tmpRoute.insert(i, costumer)
+                tmpDistance = Vehicle.calcDistance(Vehicle.genFullroute(tmpRoute, self.depot.x, self.depot.y))
+
+                if bestRouteDistance < tmpDistance:
+                    bestRoute = tmpRoute
+                    bestRouteDistance = tmpDistance
+
+            # set the route to the best route, remove first and last element
+            self.route = bestRoute[1:-1]
+            return True
+
+        return False
+
     def canAddCostumer(self, costumer: Costumer) -> bool:
         return costumer.load < (int(self.maxLoad) - int(self.currentLoad))
 
@@ -53,16 +88,25 @@ class Vehicle:
     def getRouteID(self) -> list[int]:
         return [c.i for c in self.route]
 
+    # TODO: rename to getFullRoute(self):
     def getRoute(self) -> list:
-        retRoute = [[c.x, c.y] for c in self.route]
+        return Vehicle.genFullroute(self.route, self.depot.x, self.depot.y)
 
-        retRoute.insert(0, [self.depot.x, self.depot.y])
-        retRoute.append([self.depot.x, self.depot.y])
+    @staticmethod
+    def genFullroute(route: list, depotX: int, depotY: int) -> list:
+        retRoute = [[c.x, c.y] for c in route]
+
+        retRoute.insert(0, [depotX, depotY])
+        retRoute.append([depotX, depotY])
 
         return retRoute
 
     def getDistance(self) -> int:
-        calcRoute = self.getRoute()
+        return Vehicle.calcDistance(self.getRoute())
+
+    @staticmethod
+    def calcDistance(route: list) -> int:
+        calcRoute = route
         totalDistance = 0
 
         for i in range(1, len(calcRoute)):

@@ -14,8 +14,7 @@ from costumer import Costumer
 from vehicle import Vehicle
 from depot import Depot
 
-import sys
-import random
+import sys, random
 
 depots = []
 
@@ -33,6 +32,10 @@ yMax = 0
 yMin = 0
 
 borderLineThreshold = 0.5
+
+# Crossover setting
+crossoverRate = 0.8
+crossoverChangeCostumers = 2
 
 # Dist to store the lowest distance and its generation (generation: distance)
 shortestDistance = dict()
@@ -95,6 +98,15 @@ def calcDistance(ax, ay, bx, by):
 
     return sqrt((xDistance**2) + (yDistance**2))
 
+def getDepotFromID(depotID: int) -> Depot:
+    global depots
+
+    for depot in depots:
+        if depot.i == depotID:
+            return depot
+
+    return None
+
 #
 # GA algorithm
 #
@@ -113,9 +125,8 @@ def GA():
     print(totalDistance)
     shortestDistance[0] = totalDistance
 
-
     # for vehicle in allVehicles:
-    #     print(f'D={vehicle.depot.i} V={vehicle.id}: Distance={vehicle.getDistance()}')
+        # print(f'D={vehicle.depot.i} V={vehicle.id}: Distance={vehicle.getDistance()}')
 
     # 4. while not termination condition
     for t in range(1, 20):
@@ -173,11 +184,11 @@ def distrobuteCostumersToDepot(costumers: list[Costumer], depots:list[Depot]) ->
                 shortestDepot = depot
 
         shortestDepot.addCostumer(costumer)
-        costumer.addPossibleDepots(shortestDepot.i)
+        costumer.addPossibleDepots(getDepotFromID(shortestDepot.i))
 
         for key, val in depotsDistance.items():
             if (val - shortestDistance) / shortestDistance < borderLineThreshold and key != shortestDepot.i:
-                costumer.addPossibleDepots(key)
+                costumer.addPossibleDepots(getDepotFromID(key))
                 costumer.isBorderCostumer = True
                 isBorderCostumer = True
 
@@ -195,7 +206,7 @@ def evaluateFitness(depots: list[Depot]) -> list[Vehicle] and int:
 
     return sorted(allVehicles, key=lambda x: x.getDistance() if x.getDistance() != 0 else sys.maxsize), totalDistance
 
-
+# Select parents functions
 def selectParents(routes: list[Vehicle]) -> tuple[Vehicle, Vehicle]:
     """
     Selecting parens using a form of turnament
@@ -214,11 +225,94 @@ def runTurnament(parent1: Vehicle, parent2: Vehicle, bias: int) -> Vehicle:
              return parent2
     return parent1
 
-
+# Crossover functions
 def applyCrossover(parents: list[tuple[Vehicle, Vehicle]]) -> list[Vehicle]:
-    pass
+    """
+    Applying crossover using Gant Tour Best Cost Crossover (GTBCX)
+    """
+    global crossoverRate, crossoverChangeCostumers
+    
+    retList = []
+
+    for parent1, parent2 in parents:
+        # Random if not to run crossover
+        if random.uniform(0, 1) > crossoverRate:
+            retList.append((parent1, parent2))
+
+        # Try to select costumers to crossover for some iterations, it noting works then, just leave them...
+        for _ in range(15):
+            # Select 2 costumers if available
+            p1ChangeCostumers, p1ChangeCostumersIndex = selectRandomCostumer(parent1)
+            p2ChangeCostumers, p2ChangeCostumersIndex = selectRandomCostumer(parent2)
+
+            if canAddCostumersToRoute(p1ChangeCostumers, parent2) and canAddCostumersToRoute(p2ChangeCostumers, parent1):
+                # Both parent have the space to take in the costumers, so the crossover can work
+                # NOTE: sometimes the cosymer can't be added
+                for costumer in p1ChangeCostumers:
+                    status = parent2.addCostumerOptimal(costumer)
+
+                    if not status:
+                        print('error adding costumer')
+
+                for costumer in p2ChangeCostumers:
+                    status = parent1.addCostumerOptimal(costumer)
+
+                    if not status:
+                        print('error adding costumer')
+
+                retList.append((parent1, parent2))
+            else:
+                # Add back costumers
+                for i in range(len(p1ChangeCostumers)):
+                    parent1.addCostumerIndex(p1ChangeCostumers[i], p1ChangeCostumersIndex[i])
+                
+                for i in range(len(p2ChangeCostumers)):
+                    parent2.addCostumerIndex(p2ChangeCostumers[i], p2ChangeCostumersIndex[i])
+
+    return retList
+
+def canAddCostumersToRoute(costumersToAdd: list[Costumer], vehicle: Vehicle) -> bool:
+    costumersWeight = 0
+
+    for costumer in costumersToAdd:
+        costumersWeight += costumer.load
+
+    return costumersWeight < vehicle.currentLoad
+    
+def selectRandomCostumer(parent: Vehicle) -> list[Vehicle] and list[int]:
+    """
+    Select random costumers to be used in crossover.
+
+    Return a list of costumers and the index they was removed from.
+        To be able to add them back if the crossover don't work for the costumers 
+    """
+    selectedCostumers = []
+    selectedCostumersIndex = []
+
+    if len(parent.route) > crossoverChangeCostumers:
+        for _ in range(crossoverChangeCostumers):
+            # Select random costumer
+            i = random.randrange(0, len(parent.route))
+            costumer = parent.route[i]
+
+            selectedCostumers.append(costumer)
+            selectedCostumersIndex.append(i)
+            parent.removeCostumer(costumer)
+
+    elif len(parent.route) != 0:
+        for _ in range(random.randrange(len(parent.route))):
+            # Select random costumer
+            i = random.randrange(0, len(parent.route))
+            costumer = parent.route[i]
+
+            selectedCostumers.append(costumer)
+            selectedCostumersIndex.append(i)
+            parent.removeCostumer(costumer)
+
+    return selectedCostumers, selectedCostumersIndex
 
 
+# Mutation functions
 def applyMutation(offspring: list[Vehicle]) -> list[Vehicle]:
     pass
 
@@ -287,7 +381,7 @@ if __name__ == '__main__':
     # testThing(1)
     # testForErrors()
 
-    parseFile(f'p20')
+    parseFile(f'p01')
 
     padding = 5
     ax.set_xlim(xMin - padding, xMax + padding)
@@ -300,7 +394,7 @@ if __name__ == '__main__':
         # print(depot)
         depot.addToPlot(ax)
 
-    plt.show()
+    # plt.show()
 
 """
 FIX: Not able to distrobute costumers correctly: [4, 6, 7, 10, 11]

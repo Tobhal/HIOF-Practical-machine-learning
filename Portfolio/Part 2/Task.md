@@ -43,6 +43,10 @@ You should write a report answering the points below.
 - https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.207.9651&rep=rep1&type=pdf
 - https://ieeexplore.ieee.org/abstract/document/4840417
 
+- https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwjvzvGt39v0AhU6RPEDHZRJDJkQFnoECAMQAQ&url=https%3A%2F%2Fwww.mdpi.com%2F2073-8994%2F13%2F10%2F1923%2Fpdf&usg=AOvVaw1irdCIQ9mRkipScDTFDtp4
+    - Page 9: Giant Tour Best Cost Crossover
+
+
 - https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html
 - https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.OptimizeResult.html#scipy.optimize.OptimizeResult
 - https://machinelearningmastery.com/differential-evolution-global-optimization-with-python/
