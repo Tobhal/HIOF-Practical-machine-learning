@@ -14,7 +14,7 @@ from costumer import Costumer
 from vehicle import Vehicle
 from depot import Depot
 
-import sys, random
+import sys, random, copy
 
 depots = []
 
@@ -113,30 +113,52 @@ def getDepotFromID(depotID: int) -> Depot:
 def GA():
     global costumersDistribute, depots, shortestDistance
 
+    # NOTE: Can change edge costumers to another depot randomly?
+
     # 2. Random distribution
     distrobuteCostumersToDepot(costumersDistribute, depots)
     for depot in depots:
         depot.distrubuteVehiclesRandom()
 
+    # print(depots)
+
     # 3. Evaluate the fitness
     ## Sort the shortest distance first, unless it is 0 then last
     ## Because that vehicle is not contributing to the total delivering
     bestVehicle, totalDistance = evaluateFitness(depots)
-    print(totalDistance)
     shortestDistance[0] = totalDistance
 
     # for vehicle in allVehicles:
         # print(f'D={vehicle.depot.i} V={vehicle.id}: Distance={vehicle.getDistance()}')
 
     # 4. while not termination condition
-    for t in range(1, 20):
+    for t in range(1, 10):
         # 5. Select parents
-        parents = []
-        for _ in range(totalVehicles):
-            parents.append(selectParents(bestVehicle))
+        ## Work on each depot, because using adding parents to another depot is longer.
+        ## TODO: select parents from a depot and only work with costumers in that depot. Can try to change the edge costumers to the other depot for possible better result
+        for depot in depots:
+            bestDepotVehicle, totalDepotDistance = evaluateDepotFitness(depot.vehicles)
+            parents = []
+
+            depLen = len(depot.vehicles)
+            # print((depLen - (depLen % 2)) / 2)
+
+            for _ in range(int((len(depot.vehicles) - (len(depot.vehicles) % 2)) / 2)):
+                p = selectParents(bestDepotVehicle)
+                parents.append(p)
+                bestDepotVehicle.remove(p[0])
+                bestDepotVehicle.remove(p[1])
+
+            # FIX: Crossover is not working
+            # offspring = applyCrossover(parents)
+            applyCrossover2(parents)
+
+        # parents = []
+        # for _ in range(totalVehicles):
+        #     parents.append(selectParents(bestVehicle))
 
         # 6. Apply crossover
-        offspring = applyCrossover(parents)
+        # offspring = applyCrossover(parents)
 
         # 7. Apply mutation
         # offspring = applyMutation(offspring)
@@ -204,26 +226,52 @@ def evaluateFitness(depots: list[Depot]) -> list[Vehicle] and int:
             allVehicles.append(vehicle)
             totalDistance += vehicle.getDistance()
 
-    return sorted(allVehicles, key=lambda x: x.getDistance() if x.getDistance() != 0 else sys.maxsize), totalDistance
+    return sorted(allVehicles, key=lambda v: v.getDistance() if v.getDistance() != 0 else sys.maxsize), totalDistance
+
+def evaluateDepotFitness(vehicles: list[Vehicle]) -> list[Vehicle]:
+    totalDistance = 0
+    for vehicle in vehicles:
+        totalDistance += vehicle.getDistance()
+
+    return sorted(vehicles, key=lambda v: v.getDistance() if v.getDistance() != 0 else sys.maxsize), totalDistance
 
 # Select parents functions
 def selectParents(routes: list[Vehicle]) -> tuple[Vehicle, Vehicle]:
     """
     Selecting parens using a form of turnament
     """
-    parent1 = runTurnament(random.choice(routes), random.choice(routes), 0.8)
-    parent2 = runTurnament(random.choice(routes), random.choice(routes), 0.8)
+    routesIsEven = len(routes) % 2 == 0
+    routeLen = len(routes)
 
-    return (parent1, parent2)
+    compIndex = [i for i in range(len(routes))]
+    random.shuffle(compIndex)
 
-def runTurnament(parent1: Vehicle, parent2: Vehicle, bias: int) -> Vehicle:
+    if routeLen == 2 or routeLen == 3:
+        # Just return the 2 routes as parents. We cant do much with them
+        return (routes[compIndex[0]], routes[compIndex[1]])
+    elif routeLen >= 4:
+        winner1, looser1 = runTurnament(routes[compIndex[0]], routes[compIndex[1]], 0.8)
+        winner2, looser2 = runTurnament(routes[compIndex[2]], routes[compIndex[3]], 0.8)
+        return (winner1, winner2)
+
+    # parent1 = runTurnament(routes[0], routes[1], 0.8)
+    # parent2 = runTurnament(routes[2], routes[3], 0.8)
+
+    # return (parent1, parent2)
+
+def runTurnament(parent1: Vehicle, parent2: Vehicle, bias: int) -> Vehicle and Vehicle:
+    """
+    Run a turnament where parent 1 and parent 2 is compeating.
+        Return:
+        Winner, looser
+    """
     if random.uniform(0, 1) < bias:
         if parent2.getDistance() < parent1.getDistance():
-            return parent2
+            return parent2, parent1
     else:
         if random.uniform(0, 1) < 0.5:
-             return parent2
-    return parent1
+             return parent2, parent1
+    return parent1, parent2
 
 # Crossover functions
 def applyCrossover(parents: list[tuple[Vehicle, Vehicle]]) -> list[Vehicle]:
@@ -233,34 +281,44 @@ def applyCrossover(parents: list[tuple[Vehicle, Vehicle]]) -> list[Vehicle]:
     global crossoverRate, crossoverChangeCostumers
     
     retList = []
+    print(parents)
 
     for parent1, parent2 in parents:
         # Random if not to run crossover
         if random.uniform(0, 1) > crossoverRate:
             retList.append((parent1, parent2))
 
-        # Try to select costumers to crossover for some iterations, it noting works then, just leave them...
-        for _ in range(15):
+        print()
+
+        # Try to select costumers to crossover for some iterations, if noting works then, just leave them...
+        for _ in range(5):
             # Select 2 costumers if available
             p1ChangeCostumers, p1ChangeCostumersIndex = selectRandomCostumer(parent1)
             p2ChangeCostumers, p2ChangeCostumersIndex = selectRandomCostumer(parent2)
 
             if canAddCostumersToRoute(p1ChangeCostumers, parent2) and canAddCostumersToRoute(p2ChangeCostumers, parent1):
                 # Both parent have the space to take in the costumers, so the crossover can work
-                # NOTE: sometimes the cosymer can't be added
+                # NOTE: sometimes the costumer can't be added
+                print('Can add Costumer')
+                print('P2:')
+                print(parent2)
                 for costumer in p1ChangeCostumers:
                     status = parent2.addCostumerOptimal(costumer)
 
                     if not status:
                         print('error adding costumer')
+                print(parent2)
 
+                print('P1:')
+                print(parent1)
                 for costumer in p2ChangeCostumers:
                     status = parent1.addCostumerOptimal(costumer)
 
                     if not status:
                         print('error adding costumer')
-
+                print(parent1)
                 retList.append((parent1, parent2))
+                break
             else:
                 # Add back costumers
                 for i in range(len(p1ChangeCostumers)):
@@ -268,8 +326,73 @@ def applyCrossover(parents: list[tuple[Vehicle, Vehicle]]) -> list[Vehicle]:
                 
                 for i in range(len(p2ChangeCostumers)):
                     parent2.addCostumerIndex(p2ChangeCostumers[i], p2ChangeCostumersIndex[i])
+        else:
+            # Failed to apply crossover to the parents, so just return them in the same state
+            print('Failed to add costumer')
+            retList.append((parent1, parent2))
 
     return retList
+
+def applyCrossover2(parents: list[tuple[Vehicle, Vehicle]]) -> None:
+    """
+    Apply crossover directly to the parents. Using a deepcopy of the parents for calculations, then apply directly to parents if things works
+    """
+    global crossoverRate, crossoverChangeCostumers
+
+    workingParents = copy.deepcopy(parents)
+    # print(parents)
+    # print(workingParents)
+    # print()
+
+    for p1, p2 in workingParents:
+        
+        if random.uniform(0, 1) > crossoverRate:
+            # Random chance of not doing anything to the parents, so do nothing
+            continue
+
+        for _ in range(5):
+            # print('P1:', p1.route)
+            # print('P2:', p2.route)
+
+            p1CC, p1CCI = selectRandomCostumer(p1)
+            p2CC, p2CCI = selectRandomCostumer(p2)
+
+            canAdd1 = canAddCostumersToRoute(p1CC, p2)
+            canAdd2 = canAddCostumersToRoute(p2CC, p1)
+
+            if canAdd1 and canAdd2:
+                for c in p1CC:
+                    status = p2.addCostumerOptimal(c)
+                    # print('Adding', c.i, 'to', p2.id)
+                    # print(status)
+                
+                for c in p2CC:
+                    status = p1.addCostumerOptimal(c)
+                #     print('Adding', c.i, 'to', p1.id)
+                #     print(status)
+
+                # print('P1:', p1.route)
+                # print(p1CC)
+                # print('P2:', p2.route)
+                # print(p2CC)
+
+            else:
+                for i in range(len(p1CC)):
+                    p1.addCostumerIndex(p1CC[i], p1CCI[i])
+
+                for i in range(len(p2CC)):
+                    p2.addCostumerIndex(p2CC[i], p2CCI[i])
+
+                # print('P1:', p1.route)
+                # print('P2:', p2.route)   
+
+
+
+            # print()
+
+        # print()
+
+
 
 def canAddCostumersToRoute(costumersToAdd: list[Costumer], vehicle: Vehicle) -> bool:
     costumersWeight = 0
@@ -277,7 +400,7 @@ def canAddCostumersToRoute(costumersToAdd: list[Costumer], vehicle: Vehicle) -> 
     for costumer in costumersToAdd:
         costumersWeight += costumer.load
 
-    return costumersWeight < vehicle.currentLoad
+    return costumersWeight < (int(vehicle.maxLoad) - int(vehicle.currentLoad))
     
 def selectRandomCostumer(parent: Vehicle) -> list[Vehicle] and list[int]:
     """
@@ -285,7 +408,11 @@ def selectRandomCostumer(parent: Vehicle) -> list[Vehicle] and list[int]:
 
     Return a list of costumers and the index they was removed from.
         To be able to add them back if the crossover don't work for the costumers 
+
+    TODO: Decide what happend when a vehicle only have 1 costumer in its route
     """
+    global crossoverChangeCostumers
+
     selectedCostumers = []
     selectedCostumersIndex = []
 
@@ -381,7 +508,7 @@ if __name__ == '__main__':
     # testThing(1)
     # testForErrors()
 
-    parseFile(f'p01')
+    parseFile(f'p03')
 
     padding = 5
     ax.set_xlim(xMin - padding, xMax + padding)
@@ -394,7 +521,7 @@ if __name__ == '__main__':
         # print(depot)
         depot.addToPlot(ax)
 
-    # plt.show()
+    plt.show()
 
 """
 FIX: Not able to distrobute costumers correctly: [4, 6, 7, 10, 11]

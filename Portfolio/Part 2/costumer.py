@@ -13,7 +13,10 @@ class Costumer:
     def addPossibleDepots(self, d):
         self.possibleDepots.append(d)
 
-    def __str__(self):
+    def __repr__(self) -> str:
+        return f'C{self.i}'
+
+    def __str__(self) -> str:
         return f'Costumer {self.i}:\n\
     x, y: {self.x}, {self.y}\n\
     duration: {self.duration}\n\

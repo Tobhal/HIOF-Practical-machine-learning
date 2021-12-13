@@ -1,5 +1,5 @@
 from costumer import Costumer
-import math, random, copy
+import math, random, copy, sys
 
 class Vehicle:
     def __init__(self, id, maxDuration, maxLoad, depot):
@@ -46,24 +46,35 @@ class Vehicle:
     def addCostumerOptimal(self, costumer: Costumer) -> bool:
         """
         Add costumer to the optimal place in the route
+
+        return:
+            True: if the costumer is added
+            False: if the costumer is not added
         """
+        # print('Adding optimal:', costumer.i)
         if not costumer in self.route and self.canAddCostumer(costumer):
             testRoute = copy.deepcopy(self.route)
             bestRoute = testRoute
-            bestRouteDistance = Vehicle.calcDistance(Vehicle.genFullroute(bestRoute, self.depot.x, self.depot.y))
+            bestRouteDistance = sys.maxsize
 
             # NOTE: add -1 to len(testRoute) if things do not work?
-            for i in range(1, len(testRoute)):
+            for i in range(0, len(testRoute) + 1):
                 tmpRoute = copy.deepcopy(testRoute)
                 tmpRoute.insert(i, costumer)
                 tmpDistance = Vehicle.calcDistance(Vehicle.genFullroute(tmpRoute, self.depot.x, self.depot.y))
 
-                if bestRouteDistance < tmpDistance:
+                # print('     ', tmpRoute, tmpDistance)
+
+                if bestRouteDistance > tmpDistance:
                     bestRoute = tmpRoute
                     bestRouteDistance = tmpDistance
+                    # print('Best:', bestRoute, bestRouteDistance)
 
             # set the route to the best route, remove first and last element
-            self.route = bestRoute[1:-1]
+            # NOTE: can add [1:-1] if the first and last element is the depot
+            # print(self.route)
+            # print(bestRoute)
+            self.route = bestRoute
             return True
 
         return False
@@ -77,6 +88,13 @@ class Vehicle:
             return True
         else:
             return False
+
+    def getLoad(self) -> int:
+        totLoad = 0
+        for c in self.route:
+            totLoad += c.load
+
+        return totLoad
 
     def getLoadOfRoute(route: list[Costumer]) -> int:
         totLoad = 0
@@ -132,9 +150,12 @@ class Vehicle:
 
         ax.plot(x, y, color=self.color, zorder=1)
 
-    def __str__(self):
+    # def __repr__(self) -> str:
+    #     return f'V{self.id}: D={self.depot.i} R={len(self.route)}'
+
+    def __str__(self) -> str:
         return f'Vehicle {self.id}:\n\
     route: {self.route}\n\
     max duration: {self.maxDuration}\n\
-    max load: {self.maxLoad}\n\
+    load: {self.getLoad()}/{self.maxLoad}\n\
     depot ID: {self.depot.i}'

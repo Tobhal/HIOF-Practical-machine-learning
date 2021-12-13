@@ -50,6 +50,13 @@ class Depot:
         if len(tmpCostumerArr) > 0:
             raise Exception(f'D {self.i}: Not all costumers are given a route! {len(tmpCostumerArr)} left')
 
+    def getLoad(self) -> int and int:
+        tL = 0
+        for c in self.costumers:
+            tL += c.load
+
+        return tL, tL / len(self.vehicles)
+
     #
     # Ploting
     #
@@ -73,7 +80,10 @@ class Depot:
     # 
     # Utility
     # 
-    def __str__(self):
+    def __repr__(self) -> str:
+        return f'D{self.i}: l={self.getLoad()} nC={len(self.costumers)} nV={len(self.vehicles)}'
+
+    def __str__(self) -> str:
         vehiclesString = ''
         for vehicle in self.vehicles:
             vehiclesString += f'    Vehicle {vehicle.id}:\n\
