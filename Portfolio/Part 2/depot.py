@@ -19,6 +19,9 @@ class Depot:
         self.vehicles = []
         self.costumers = []
 
+        self.bestVehicles = []
+        self.bestVehiclesDistance = 0
+
         self.color = (
             random.random(),
             random.random(),
@@ -31,6 +34,20 @@ class Depot:
     def setPos(self, x, y):
         self.x = int(x)
         self.y = int(y)
+
+    def setBestVehiclesRoutes(self, vehiclesRoutes: list[Vehicle]):
+        """
+        Deep copy of the to sotore the depots best route, if the new route is better
+        Also sets the self.bestVehicleDistance variable
+        """
+        self.bestVehicles = copy.deepcopy(vehiclesRoutes)
+        oldBest = self.bestVehiclesDistance
+        
+        self.bestVehiclesDistance = 0
+        for v in vehiclesRoutes:
+            self.bestVehiclesDistance += v.getDistance()
+
+        print(f'New best: {oldBest} -> {self.bestVehiclesDistance}')
 
     def addCostumer(self, c):
         self.costumers.append(c)
@@ -57,6 +74,13 @@ class Depot:
 
         return tL, tL / len(self.vehicles)
 
+    def getTotalDistance(self) -> int:
+        tD = 0
+        for v in self.vehicles:
+            tD += v.getDistance()
+
+        return tD
+
     #
     # Ploting
     #
@@ -70,11 +94,26 @@ class Depot:
             else:
                 ax.scatter(costumer.x, costumer.y, color=self.color, zorder=2)
 
+    def addBestCostumersToPlot(self, ax):
+        for vehicle in self.bestVehicles:
+            for costumer in vehicle:
+                if costumer.isBorderCostumer:
+                    ax.scatter(costumer.x, costumer.y, color=self.color, zorder=2, facecolors='none')
+                else:
+                    ax.scatter(costumer.x, costumer.y, color=self.color, zorder=2)
+
     def addToPlot(self, ax):
         self.addDepotToPlot(ax)
         self.addCostumerToPlot(ax)
 
         for vehicle in self.vehicles:
+            vehicle.addToPlot(ax)
+
+    def addBestToPlot(self, ax):
+        self.addDepotToPlot(ax)
+        self.addCostumerToPlot(ax)
+
+        for vehicle in self.bestVehicles:
             vehicle.addToPlot(ax)
 
     # 
@@ -107,5 +146,6 @@ class Depot:
   D: {self.D}\n\
   Max Load: {self.Q}\n\
   Load: {totalLoad}, {devidedLoad}\n\
+  Best Route: {self.bestVehicles}\n\
   Costumers: {costumerArr}\n\
   Vehicles:\n{vehiclesString}'
