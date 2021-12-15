@@ -53,13 +53,13 @@ class Vehicle:
         """
         # print('Adding optimal:', costumer.i)
         if not costumer in self.route and self.canAddCostumer(costumer):
-            testRoute = copy.deepcopy(self.route)
+            testRoute = copy.copy(self.route)
             bestRoute = testRoute
             bestRouteDistance = sys.maxsize
 
             # NOTE: add -1 to len(testRoute) if things do not work?
             for i in range(0, len(testRoute) + 1):
-                tmpRoute = copy.deepcopy(testRoute)
+                tmpRoute = copy.copy(testRoute)
                 tmpRoute.insert(i, costumer)
                 tmpDistance = Vehicle.calcDistance(Vehicle.genFullroute(tmpRoute, self.depot.x, self.depot.y))
 

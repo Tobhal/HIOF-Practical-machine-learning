@@ -40,20 +40,23 @@ class Depot:
         Deep copy of the to sotore the depots best route, if the new route is better
         Also sets the self.bestVehicleDistance variable
         """
-        self.bestVehicles = copy.deepcopy(vehiclesRoutes)
+        # print('Copy | ', end='')
+        self.bestVehicles = copy.copy(vehiclesRoutes)
         oldBest = self.bestVehiclesDistance
         
+        # print('Calc: ', end='')
         self.bestVehiclesDistance = 0
         for v in vehiclesRoutes:
+            # print(f'{v.id}, ', end='')
             self.bestVehiclesDistance += v.getDistance()
 
-        print(f'New best: {oldBest} -> {self.bestVehiclesDistance}')
+        # print(f'New best: {oldBest} -> {self.bestVehiclesDistance}')
 
     def addCostumer(self, c):
         self.costumers.append(c)
 
     def distrubuteVehiclesRandom(self):
-        tmpCostumerArr = copy.deepcopy(self.costumers)
+        tmpCostumerArr = copy.copy(self.costumers)
         random.shuffle(tmpCostumerArr)
 
         # Run distortion multiple times to make sure all costumers are disturbed

@@ -14,6 +14,7 @@ from costumer import Costumer
 from vehicle import Vehicle
 from depot import Depot
 
+from multiprocessing import Process
 
 import sys, random, copy
 
@@ -116,12 +117,16 @@ def GA():
 
     # NOTE: Can change edge costumers to another depot randomly?
 
+    initialLengths = []
+
     # 2. Random distribution
     distrobuteCostumersToDepot(costumersDistribute, depots)
     for depot in depots:
         depot.distrubuteVehiclesRandom()
         depot.setBestVehiclesRoutes(depot.vehicles)
+        initialLengths.append((copy.deepcopy(depot.getTotalDistance())))
 
+    print(initialLengths)
     # print(depots)
 
     # 3. Evaluate the fitness
@@ -130,40 +135,27 @@ def GA():
     bestVehicle, totalDistance = evaluateFitness(depots)
     shortestDistance[0] = totalDistance
 
-
     # for vehicle in allVehicles:
         # print(f'D={vehicle.depot.i} V={vehicle.id}: Distance={vehicle.getDistance()}')
 
     # 4. while not termination condition
-    for t in range(1, 10):
+    for t in range(1, 5000):
         # 5. Select parents
         ## Work on each depot, because using adding parents to another depot is longer.
         ## TODO: select parents from a depot and only work with costumers in that depot. Can try to change the edge costumers to the other depot for possible better result
+        proc = []
         for depot in depots:
-            bestDepotVehicle, totalDepotDistance = evaluateDepotFitness(depot.vehicles)
-            print(f'{t:2}: {depot.i:2} - {totalDepotDistance}')
+            # p = Process(target=doGA, args=(t, depot))
+            # proc.append(p)
+            doGA(t, depot)
 
-            parents = []
+        # for p in proc:
+        #     p.start()
 
-            for _ in range(int((len(depot.vehicles) - (len(depot.vehicles) % 2)) / 2)):
-                p = selectParents(bestDepotVehicle)
-                parents.append(p)
-                bestDepotVehicle.remove(p[0])
-                bestDepotVehicle.remove(p[1])
+        # for p in proc:
+        #     p.join()
 
-            # offspring = applyCrossover(parents)
-            applyCrossover2(parents)
-
-            # Apply mutation
-
-            # print(depot.getTotalDistance())
-            # Set best solution
-            if depot.bestVehiclesDistance > depot.getTotalDistance():
-                depot.setBestVehiclesRoutes(depot.vehicles)
-
-        else:
-            print('------')
-
+        print('------')
         # parents = []
         # for _ in range(totalVehicles):
         #     parents.append(selectParents(bestVehicle))
@@ -175,6 +167,36 @@ def GA():
         # offspring = applyMutation(offspring)
 
         # allVehicles = evaluateFitness(offspring)
+
+    for i in range(len(initialLengths)):
+        print(initialLengths[i])
+        print(depots[i].bestVehiclesDistance)
+        print()
+
+def doGA(t: int, depot: Depot):
+    # print('Fitness | ', end='')
+    bestDepotVehicle, totalDepotDistance = evaluateDepotFitness(depot.vehicles)
+    # print(f'{t:2}: {depot.i:2} - {totalDepotDistance}')
+
+    parents = []
+
+    # print('Parents | ', end='')
+    for _ in range(int((len(depot.vehicles) - (len(depot.vehicles) % 2)) / 2)):
+        p = selectParents(bestDepotVehicle)
+        parents.append(p)
+        bestDepotVehicle.remove(p[0])
+        bestDepotVehicle.remove(p[1])
+
+    # offspring = applyCrossover(parents)
+    # print('Crossover | ', end='')
+    applyCrossover2(parents)
+
+    # Apply mutation
+
+    # print(depot.getTotalDistance())
+    # Set best solution
+    if depot.bestVehiclesDistance > depot.getTotalDistance():
+        depot.setBestVehiclesRoutes(depot.vehicles)
 
 def distrubeCostumersRandomly(costumers: list[Costumer], depots: list[Depot]) -> bool:
     random.shuffle(costumers)
@@ -345,7 +367,7 @@ def applyCrossover(parents: list[tuple[Vehicle, Vehicle]]) -> list[Vehicle]:
 
 def applyCrossover2(parents: list[tuple[Vehicle, Vehicle]]) -> None:
     """
-    Apply crossover directly to the parents. Using a deepcopy of the parents for calculations, then apply directly to parents if things works
+    # Apply crossover directly to the parents. Using a deepcopy of the parents for calculations, then apply directly to parents if things works
     """
     global crossoverRate, crossoverChangeCostumers
 
@@ -453,6 +475,15 @@ def selectRandomCostumer(parent: Vehicle) -> list[Vehicle] and list[int]:
 def applyMutation(offspring: list[Vehicle]) -> list[Vehicle]:
     pass
 
+
+#
+# Print solution
+#
+def printSolution():
+    totalCost = 0
+    for depot in depots:
+        totalCost += depot.getDistance()
+
 # 
 # Test things
 #
@@ -518,7 +549,7 @@ if __name__ == '__main__':
     # testThing(1)
     # testForErrors()
 
-    parseFile(f'p03')
+    parseFile(f'p01')
 
     padding = 5
     ax.set_xlim(xMin - padding, xMax + padding)
@@ -528,11 +559,11 @@ if __name__ == '__main__':
     GA()
 
     for depot in depots:
-        print(depot)
+        # print(depot)
         # depot.addToPlot(ax)
         depot.addBestToPlot(ax)
 
-    plt.show()
+    # plt.show()
 
 """
 FIX: Not able to distrobute costumers correctly: [4, 6, 7, 10, 11]
