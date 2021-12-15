@@ -4,17 +4,11 @@
 from math import sqrt
 from typing import Dict
 import matplotlib.pyplot as plt
-from matplotlib import cm
-
-import numpy as np
-import pandas as pd
 
 # Importing supporting classes for storing data
 from costumer import Costumer
 from vehicle import Vehicle
 from depot import Depot
-
-from multiprocessing import Process
 
 import sys, random, copy
 
@@ -43,6 +37,10 @@ crossoverChangeCostumers = 2
 shortestDistance = dict()
 
 parensToKeep = 20
+
+showProgress = True
+
+iterations = (1, 1000)
 
 def updateMinMax(x, y):
     global xMax, xMin, yMax, yMin
@@ -113,7 +111,7 @@ def getDepotFromID(depotID: int) -> Depot:
 # GA algorithm
 #
 def GA():
-    global costumersDistribute, depots, shortestDistance
+    global costumersDistribute, depots, shortestDistance, iterations
 
     # NOTE: Can change edge costumers to another depot randomly?
 
@@ -126,7 +124,7 @@ def GA():
         depot.setBestVehiclesRoutes(depot.vehicles)
         initialLengths.append((copy.deepcopy(depot.getTotalDistance())))
 
-    print(initialLengths)
+    # print(initialLengths)
     # print(depots)
 
     # 3. Evaluate the fitness
@@ -139,7 +137,7 @@ def GA():
         # print(f'D={vehicle.depot.i} V={vehicle.id}: Distance={vehicle.getDistance()}')
 
     # 4. while not termination condition
-    for t in range(1, 5000):
+    for t in range(iterations[0], iterations[1]):
         # 5. Select parents
         ## Work on each depot, because using adding parents to another depot is longer.
         ## TODO: select parents from a depot and only work with costumers in that depot. Can try to change the edge costumers to the other depot for possible better result
@@ -149,13 +147,21 @@ def GA():
             # proc.append(p)
             doGA(t, depot)
 
+            if showProgress:
+                progress = (t-iterations[0])/((iterations[1]-1)-iterations[0]) * 100
+                sys.stdout.write(f'\rProgress: {round(progress,1)}%')
+                sys.stdout.flush()
+
+    if showProgress:
+        print()
+
         # for p in proc:
         #     p.start()
 
         # for p in proc:
         #     p.join()
 
-        print('------')
+        # print('------')
         # parents = []
         # for _ in range(totalVehicles):
         #     parents.append(selectParents(bestVehicle))
@@ -168,10 +174,10 @@ def GA():
 
         # allVehicles = evaluateFitness(offspring)
 
-    for i in range(len(initialLengths)):
-        print(initialLengths[i])
-        print(depots[i].bestVehiclesDistance)
-        print()
+    # for i in range(len(initialLengths)):
+    #     print(initialLengths[i])
+    #     print(depots[i].bestVehiclesDistance)
+    #     print()
 
 def doGA(t: int, depot: Depot):
     # print('Fitness | ', end='')
@@ -479,10 +485,12 @@ def applyMutation(offspring: list[Vehicle]) -> list[Vehicle]:
 #
 # Print solution
 #
-def printSolution():
+def calcSolution():
     totalCost = 0
     for depot in depots:
-        totalCost += depot.getDistance()
+        totalCost += depot.getTotalDistance()
+
+    return totalCost
 
 # 
 # Test things
@@ -557,6 +565,9 @@ if __name__ == '__main__':
 
     # Run the GA algorithm
     GA()
+
+    totalCost = calcSolution()
+    print(totalCost)
 
     for depot in depots:
         # print(depot)
