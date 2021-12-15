@@ -11,6 +11,7 @@ from vehicle import Vehicle
 from depot import Depot
 
 import sys, random, copy
+import traceback, logging   # Error catching
 
 depots = []
 
@@ -89,6 +90,11 @@ def parseFile(fileName):
 
     file.close()
 
+def readSolutionFile(fileName):
+    fileName = fileName if fileName > 10 else f'0{fileName}'
+    with open(f'SolutionFiles/p{fileName}.txt') as file:
+        return file.readline().removesuffix('\n')
+
 # 
 # Utils
 # 
@@ -141,7 +147,6 @@ def GA():
         # 5. Select parents
         ## Work on each depot, because using adding parents to another depot is longer.
         ## TODO: select parents from a depot and only work with costumers in that depot. Can try to change the edge costumers to the other depot for possible better result
-        proc = []
         for depot in depots:
             # p = Process(target=doGA, args=(t, depot))
             # proc.append(p)
@@ -487,10 +492,27 @@ def applyMutation(offspring: list[Vehicle]) -> list[Vehicle]:
 #
 def calcSolution():
     totalCost = 0
+    bestRoutes = []
     for depot in depots:
         totalCost += depot.getTotalDistance()
+        
+        for vehicle in depot.bestVehicles:
+            bestRoutes.append([depot.i + 1, vehicle.id + 1, round(vehicle.getDistance(), 2), vehicle.getLoad(), vehicle.getFullRouteID()])
 
-    return totalCost
+    return totalCost, bestRoutes
+
+def checkWithSolution():
+    """
+    Run true all files and calculate for each. Then print the calculated cost with the solution cost
+    """
+    for i in range(1, 23):
+        try:
+            cost = testThing(i)
+            solutionCost = readSolutionFile(i)
+            print(f'Cost = {round(cost, 2)} | Solution = {solutionCost}')
+        except Exception as e:
+            # logging.error(traceback.format_exc())
+            print(f'Error with file: {i}')
 
 # 
 # Test things
@@ -501,7 +523,6 @@ def testThing(fileNum):
 
     costumers = []
     costumersDistribute = []
-    costumersSwappable = []
 
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
@@ -511,12 +532,6 @@ def testThing(fileNum):
     yMin = 0
 
     borderLineThreshold = 0.5
-
-    shortestDistance = [] 
-
-    parensToKeep = 20
-
-    totalVehicles = 0
 
     num = fileNum if fileNum > 10 else f'0{fileNum}'
 
@@ -529,11 +544,14 @@ def testThing(fileNum):
     # Run the GA algorithm
     GA()
 
-    for depot in depots:
-        # print(depot)
-        depot.addToPlot(ax)
+    totalCost, bestRoutes = calcSolution()
 
-    plt.show()
+    return totalCost
+    # for depot in depots:
+    #     # print(depot)
+    #     depot.addToPlot(ax)
+
+    # plt.show()
 
 def testForErrors():
     errorIndex = dict()
@@ -557,7 +575,10 @@ if __name__ == '__main__':
     # testThing(1)
     # testForErrors()
 
-    parseFile(f'p01')
+
+    checkWithSolution()
+    """
+    parseFile(f'p03')
 
     padding = 5
     ax.set_xlim(xMin - padding, xMax + padding)
@@ -566,8 +587,11 @@ if __name__ == '__main__':
     # Run the GA algorithm
     GA()
 
-    totalCost = calcSolution()
+    totalCost, bestRoutes = calcSolution()
     print(totalCost)
+
+    for route in bestRoutes:
+        print(route)
 
     for depot in depots:
         # print(depot)
@@ -575,6 +599,8 @@ if __name__ == '__main__':
         depot.addBestToPlot(ax)
 
     # plt.show()
+
+    """
 
 """
 FIX: Not able to distrobute costumers correctly: [4, 6, 7, 10, 11]

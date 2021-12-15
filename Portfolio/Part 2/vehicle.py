@@ -61,7 +61,7 @@ class Vehicle:
             for i in range(0, len(testRoute) + 1):
                 tmpRoute = copy.copy(testRoute)
                 tmpRoute.insert(i, costumer)
-                tmpDistance = Vehicle.calcDistance(Vehicle.genFullroute(tmpRoute, self.depot.x, self.depot.y))
+                tmpDistance = Vehicle.calcDistance(Vehicle.genFullRoute(tmpRoute, self.depot.x, self.depot.y))
 
                 # print('     ', tmpRoute, tmpDistance)
 
@@ -105,15 +105,20 @@ class Vehicle:
 
     def getRouteID(self) -> list[int]:
         return [c.i for c in self.route]
+    
+    def getFullRouteID(self) -> list[int]:
+        retRoute = [c.i for c in self.route]
+        retRoute.insert(0, 0)
+        retRoute.append(0)
+        
+        return retRoute
 
-    # TODO: rename to getFullRoute(self):
     def getRoute(self) -> list:
-        return Vehicle.genFullroute(self.route, self.depot.x, self.depot.y)
+        return Vehicle.genFullRoute(self.route, self.depot.x, self.depot.y)
 
     @staticmethod
-    def genFullroute(route: list, depotX: int, depotY: int) -> list:
+    def genFullRoute(route: list, depotX: int, depotY: int) -> list:
         retRoute = [[c.x, c.y] for c in route]
-
         retRoute.insert(0, [depotX, depotY])
         retRoute.append([depotX, depotY])
 
