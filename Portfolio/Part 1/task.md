@@ -13,3 +13,38 @@ Other implementation details are:
 
 After programming is done, vary the value of learning rate from 0.05 to 0.5 with increment 0.05, and report the number of epochs for each choice of learning rate.
 You should use proper graph to analyze the implementation and the relationship between the learning rate and the the number of epochs.
+
+# Sources
+- https://medium.com/@tiago.tmleite/neural-networks-multilayer-perceptron-and-the-backpropagation-algorithm-a5cd5b904fde
+- https://www.cse.unsw.edu.au/~cs9417ml/MLP2/BackPropagation.html
+
+- https://www.delftstack.com/howto/python/python-int-to-binary/
+- https://machinelearningmastery.com/implement-backpropagation-algorithm-scratch-python/
+- https://towardsdatascience.com/implementing-backpropagation-with-style-in-python-da4c2f49adb4
+- https://www.stackvidhya.com/how-to-normalize-data-between-0-and-1-range/
+- https://en.wikipedia.org/wiki/Hadamard_product_(matrices)
+
+## Numpy things
+- https://stackoverflow.com/questions/5954603/transposing-a-1d-numpy-array
+- https://stackoverflow.com/questions/41069825/convert-binary-01-numpy-to-integer-or-binary-string
+- https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
+- https://numpy.org/doc/stable/reference/generated/numpy.append.html
+- https://stackoverflow.com/questions/40034993/how-to-get-element-wise-matrix-multiplication-hadamard-product-in-numpy
+- https://numpy.org/doc/stable/reference/generated/numpy.divide.html
+
+# Presentations from leachers
+- https://hiof.instructure.com/courses/5088/files/folder/Lecture%20Slides/Week%206_Artificial%20Neural%20Network?preview=990559
+- https://hiof.instructure.com/courses/5088/files/folder/Lecture%20Slides/Week%206_Artificial%20Neural%20Network?preview=992754
+- https://hiof.instructure.com/courses/5088/files/folder/Lecture%20Slides/Week%206_Artificial%20Neural%20Network?preview=988454
+- https://hiof.instructure.com/courses/5088/files/folder/Lecture%20Slides/Week%206_Artificial%20Neural%20Network?preview=990569
+- https://hiof.instructure.com/courses/5088/files/folder/Lecture%20Slides/Week%206_Artificial%20Neural%20Network?preview=990568
+
+# Videos:
+## Youtube chanel: Welch Labs (https://www.youtube.com/channel/UConVfxXodg78Tzh5nNu85Ew)
+### Playlist used:
+- https://www.youtube.com/watch?v=bxe2T-V8XRs&list=PLiaHhY2iBX9hdHaRr6b7XevZtgZRa1PoU
+
+## Other videos:
+- https://www.youtube.com/watch?v=aircAruvnKk
+- https://www.youtube.com/watch?v=QJoa0JYaX1I
+- https://www.youtube.com/watch?v=Ilg3gGewQ5U
