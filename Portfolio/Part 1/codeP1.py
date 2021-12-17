@@ -40,11 +40,11 @@ def isEven(i: int) -> int:
     """
     return i % 2
 
-def normalizeData(x, bits):
+def normalizeData(i, bits):
     """
     Normalize the data from 0 to 1    
     """
-    return (x - 0) / (2**bits - 0)
+    return (i - 0) / (2**bits - 0)
 
 def intToSplitBites(i: int, numLen: int) -> list[list]:
     """
@@ -81,57 +81,99 @@ def intToSplitBites(i: int, numLen: int) -> list[list]:
 def train():
     pass
 
-def forwardPropagate(x):
+def forwardPropagate(i):
     """
-    Forward propagate the network
+    Forward propagate the network.
+    Calculating using matrix's 
+
+    Return:
+        - Output of hidden layer
+        - Output
     """
     global W1, W2
 
-    # Compute Feed forward for input to hidden layer 1
-    w0 = np.dot(W1, x)
-    w0 = sigFunc(w0)
+    # Calculate Feed forward for input to hidden layer 1
+    net_h = np.dot(W1, i)   # Net H
+    oh = sigFunc(net_h)     # Out H
 
-    # Compute Feed forward for hidden layer 1 to output
-    w1 = np.dot(W2.T, w0)
-    w1 = sigFunc(w1)
+    # Calculate Feed forward for hidden layer 1 to output
+    net_o = np.dot(W2.T, oh)    # Net out 
+    o = sigFunc(net_o)          # Out 
 
-    return w0, w1
+    oDer = o * (1 - o)
 
-def calcError(w0, w1, y):
+    return oh, o, oDer
+
+def calcFPError(y, o):
+    """
+    Calculate the error matrix
+    """
+    # NOTE: Maybe not add a - to this?
+    oErr = (o - y)
+
+    # Calculate the derivative activation function
+    do = np.multiply(o, 1 - o)
+
+    return np.multiply(oErr, do)
+
+def calcError(errMat, o, i):
     """
     Calculate the error matrix's
     """
     global W1, W2
 
+    oDer = o * (1 - o)
+
     # Error matrix form the hidden layer to output
-    err2 = (w1 - y) * (w1) * (1 - w1)
-    eW1 = np.dot(W2, err2)
-    out2 = 1 - w1
-    eW1 = np.multiply(eW1, out2)
+    eW1 = np.matmul(W2, errMat)     # weight matrix X error matrix
+    em2 = np.multiply(eW1, oDer)    # prev * (Hadamard) derivative of activation function -> Error matrix 2
 
     # Error matrix from the hidden layer to hidden layer
-    err1 = (w0 - w1) * (w0) * (1 - w0)
-    eW0 = np.dot(W1, err1)
-    out1 = 1 - w0
-    eW0 = np.multiply(eW0, out1)
+    eW0 = np.dot(W1, em2)       # weight matrix X error matrix 2
+    em1 = np.multiply(eW0, i)   # prev * (Hadamard) input nodes
 
-    return eW0, eW1, err1, err2
+    return em1, em2
+
+def calcQuadraticCost(y, o):
+    """
+    Calculate the quadratic cost of the current training sett
+    """
+    return np.power(y - o,2) / 2
     
-
-def backwardsPropagate(x, y, eW0, eW1, err1, err2, learnRate: float):
+def backwardsPropagate(oh, errMat, em2, i, learningRate):
     """
     Backwards propagate the network
     """
     global W1, W2
+
+    # Rar s = delta feil | a = error matrix delta
+
+    # Partial Derivative C 2
+    pdC2 = np.multiply(oh, errMat)
+    
+    # Set new values for the weight (hidden layer -> output)
+    W2 = W2 - learningRate * pdC2
+
+    # Partial Derivative C1
+    pdC1 = np.multiply(em2, i)
+
+    # Set new values for the weight (input -> hidden layer)
+    W1 = W1 - learningRate * pdC1
+
+
+    """
     # The gradient vector (gv) for hidden layer to output
     gvW2 = np.true_divide(W2, eW1)
     W2 = W2 - learnRate * gvW2
     
     gvW1 = np.true_divide(W1, eW0)
     W2 = W2 - learnRate * gvW1
+    """
+
+    return pdC1, pdC2
     
 
-def runPreception(learningRate) -> int:
+def runPreception(bits, learningRate) -> int:
     """
     Run the preceptron algorithm.
 
@@ -139,50 +181,61 @@ def runPreception(learningRate) -> int:
     """
     global W1, W2
 
-    bits = 4
-    r = 1000
+    showProgress = True
+    r = 1000000
 
     for e in range(r + 1):
-        # print(f'W1: {W1}')
-        # print(f'W2: {W2}')
 
         num = random.randint(1, 2**bits)
 
         y = isEven(num)
         y = np.array([[y]])
 
-        x = intToSplitBites(num, bits)
-        x = normalizeData(x, bits)
-        # x = np.append(x, 0)
-        # x = np.array([x]).T
+        i = intToSplitBites(num, bits)
+        i = normalizeData(i, bits)
 
-        w0, w1 = forwardPropagate(x)
+        # Get out hidden layer and output from the forward propagate
+        oh, o, oDer = forwardPropagate(i)
 
         # Calculate error
-        eW0, eW1, err1, err2 = calcError(w0, w1, y)
+        ## Get error matrix
+        errMat = calcFPError(y, o)
 
-        backwardsPropagate(x, y, eW0, eW1, err1, err2, learningRate)
+        ## Get error matrix 1 and error matrix 2
+        em1, em2 = calcError(errMat, o, i)
+        
+        # print(num, o, errMat)
 
-        # progress = (e-0)/((r-1)-0) * 100
-        # sys.stdout.write(f'\rProgress: {round(progress,1)}%')
-        # sys.stdout.flush()
+        pdC1, pdC2 = backwardsPropagate(oh, errMat, em2, i, learningRate)
+
+        if showProgress:
+            progress = (e-0)/((r-1)-0) * 100
+            sys.stdout.write(f'\rProgress: {round(progress,1)}%')
+            sys.stdout.flush()
     else:
-        print()
+        if showProgress:
+            print()
         return e
 
 if __name__ == '__main__':
-    epoch = runPreception(0.05)
+    bits = 4
 
-    testInt = 14
+    epoch = runPreception(bits, 0.5)
 
-    x = intToSplitBites(testInt, 4)
-    x = normalizeData(x, 4)
-    w1, w2 = forwardPropagate(x)
-    print(w2)
+    print()
+    testInts = [14, 15]
 
-    testInt = 13
+    for ti in testInts:
+        i = intToSplitBites(ti, bits)
+        i = normalizeData(i, bits)
+        oh, o, oDer = forwardPropagate(i)
+        print(ti, o)
 
-    x = intToSplitBites(testInt, 4)
-    x = normalizeData(x, 4)
-    w1, w2 = forwardPropagate(x)
-    print(w2)
+"""
+# Notes
+a: matrix of activation for each node
+z: matrix input values to each node
+W: weights
+X: Input values
+Y: target value
+"""

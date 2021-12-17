@@ -31,6 +31,7 @@ You should use proper graph to analyze the implementation and the relationship b
 - https://numpy.org/doc/stable/reference/generated/numpy.append.html
 - https://stackoverflow.com/questions/40034993/how-to-get-element-wise-matrix-multiplication-hadamard-product-in-numpy
 - https://numpy.org/doc/stable/reference/generated/numpy.divide.html
+- https://numpy.org/doc/stable/reference/generated/numpy.matmul.html
 
 # Presentations from leachers
 - https://hiof.instructure.com/courses/5088/files/folder/Lecture%20Slides/Week%206_Artificial%20Neural%20Network?preview=990559
