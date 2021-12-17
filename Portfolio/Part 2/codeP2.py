@@ -128,7 +128,7 @@ def GA():
     for depot in depots:
         depot.distrubuteVehiclesRandom()
         depot.setBestVehiclesRoutes(depot.vehicles)
-        initialLengths.append((copy.deepcopy(depot.getTotalDistance())))
+        initialLengths.append((copy.copy(depot.getTotalDistance())))
 
     # print(initialLengths)
     # print(depots)
@@ -429,14 +429,6 @@ def applyCrossover2(parents: list[tuple[Vehicle, Vehicle]]) -> None:
                 # print('P1:', p1.route)
                 # print('P2:', p2.route)   
 
-
-
-            # print()
-
-        # print()
-
-
-
 def canAddCostumersToRoute(costumersToAdd: list[Costumer], vehicle: Vehicle) -> bool:
     costumersWeight = 0
 
@@ -546,12 +538,13 @@ def testThing(fileNum):
 
     totalCost, bestRoutes = calcSolution()
 
-    return totalCost
-    # for depot in depots:
-    #     # print(depot)
-    #     depot.addToPlot(ax)
+    for depot in depots:
+        # print(depot)
+        # depot.addToPlot(ax)
+        depot.addBestToPlot(ax)
 
     # plt.show()
+    return totalCost
 
 def testForErrors():
     errorIndex = dict()
@@ -575,6 +568,7 @@ if __name__ == '__main__':
     # testThing(1)
     # testForErrors()
 
+    # print(testThing(1))
 
     checkWithSolution()
     """

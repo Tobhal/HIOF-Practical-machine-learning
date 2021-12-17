@@ -53,3 +53,6 @@ You should write a report answering the points below.
 - https://machinelearningmastery.com/differential-evolution-global-optimization-with-python/
 - https://scikit-opt.github.io
 - https://scikit-opt.github.io/scikit-opt/#/en/README?id=_2-genetic-algorithm
+
+# To read?
+- https://hiof.instructure.com/courses/5088/files/folder/Lecture%20Slides/W_11?preview=1021815
