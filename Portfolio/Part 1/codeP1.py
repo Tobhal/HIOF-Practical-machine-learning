@@ -1,4 +1,6 @@
+from os import access
 import random, sys, copy
+from matplotlib.pyplot import axis
 import numpy as np
 import matplotlib as plt
 
@@ -129,7 +131,7 @@ def calcError(errMat, o, i):
     em2 = np.multiply(eW1, oDer)    # prev * (Hadamard) derivative of activation function -> Error matrix 2
 
     # Error matrix from the hidden layer to hidden layer
-    eW0 = np.dot(W1, em2)       # weight matrix X error matrix 2
+    eW0 = np.matmul(W1, em2)    # weight matrix X error matrix 2
     em1 = np.multiply(eW0, i)   # prev * (Hadamard) input nodes
 
     return em1, em2
@@ -140,25 +142,25 @@ def calcQuadraticCost(y, o):
     """
     return np.power(y - o,2) / 2
     
-def backwardsPropagate(oh, errMat, em2, i, learningRate):
+def backwardsPropagate(oh, em1, em2, i, learningRate):
     """
     Backwards propagate the network
     """
     global W1, W2
 
-    # Rar s = delta feil | a = error matrix delta
+    # a = error matrix delta | Rar s = delta feil
 
     # Partial Derivative C 2
-    pdC2 = np.multiply(oh, errMat)
+    # pdC2 = np.multiply(oh, errMat)
     
     # Set new values for the weight (hidden layer -> output)
-    W2 = W2 - learningRate * pdC2
+    W2 = W2 - learningRate * np.multiply(oh, em2)
 
     # Partial Derivative C1
-    pdC1 = np.multiply(em2, i)
+    # pdC1 = np.multiply(i, )
 
     # Set new values for the weight (input -> hidden layer)
-    W1 = W1 - learningRate * pdC1
+    W1 = W1 - learningRate * np.multiply(em1, i)
 
 
     """
@@ -170,8 +172,35 @@ def backwardsPropagate(oh, errMat, em2, i, learningRate):
     W2 = W2 - learnRate * gvW1
     """
 
-    return pdC1, pdC2
-    
+    #return pdC1, pdC2
+
+def testFunc():
+    rNum = random.randint(1, 2**bits)
+    i = np.array(
+        normalizeData(
+            intToSplitBites(
+                rNum,
+                bits
+            ),
+            bits
+        ).T
+    )
+
+    y = np.array([[isEven(rNum)]])
+
+    for _ in range(0):
+        num = random.randint(1, 2**bits)
+
+        ty = isEven(num)
+        ty = np.array([[ty]])
+        y = np.append(y, ty, axis=0)
+
+        ti = intToSplitBites(num, bits)
+        ti = normalizeData(ti, bits)
+        ti = np.array(ti.T)
+        i = np.append(i, ti, axis=0)
+
+    return i, y
 
 def runPreception(bits, learningRate) -> int:
     """
@@ -206,7 +235,7 @@ def runPreception(bits, learningRate) -> int:
         
         # print(num, o, errMat)
 
-        pdC1, pdC2 = backwardsPropagate(oh, errMat, em2, i, learningRate)
+        backwardsPropagate(oh, em1, em2, i, learningRate)
 
         if showProgress:
             progress = (e-0)/((r-1)-0) * 100
