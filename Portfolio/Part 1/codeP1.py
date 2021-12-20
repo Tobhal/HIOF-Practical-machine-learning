@@ -1,8 +1,6 @@
-from os import access
-import random, sys, copy
-from matplotlib.pyplot import axis
+import random, sys
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 stopValue = 0.05    # What difference the values need to be before the algorithm stops
 
@@ -211,9 +209,10 @@ def runPreception(bits, learningRate) -> int:
     global W1, W2
 
     showProgress = True
-    r = 1000000
+    r = 1000
 
-    for e in range(r + 1):
+    # TODO: Break when the difference is 0.05
+    for epoch in range(r + 1):
 
         num = random.randint(1, 2**bits)
 
@@ -225,6 +224,9 @@ def runPreception(bits, learningRate) -> int:
 
         # Get out hidden layer and output from the forward propagate
         oh, o, oDer = forwardPropagate(i)
+
+        # Calculate the difference
+        diff = abs(y - o)
 
         # Calculate error
         ## Get error matrix
@@ -238,18 +240,36 @@ def runPreception(bits, learningRate) -> int:
         backwardsPropagate(oh, em1, em2, i, learningRate)
 
         if showProgress:
-            progress = (e-0)/((r-1)-0) * 100
+            progress = (epoch-0)/((r-1)-0) * 100
             sys.stdout.write(f'\rProgress: {round(progress,1)}%')
             sys.stdout.flush()
     else:
         if showProgress:
             print()
-        return e
+        return epoch, diff
+
+def runTask():
+    bits = 4
+    lrA, epochA = [], []
+
+    for lr in np.arange(0.05, 0.55, 0.05):
+        epoch, diff = runPreception(bits, lr)
+        lrA.append(lr)
+        epochA.append(epoch)
+
+    plt.plot(lrA, epochA)
+    plt.title('Learning of even or odd')
+    plt.xlabel('Learning rate')
+    plt.ylabel('Num epochs')
+    plt.show()
 
 if __name__ == '__main__':
     bits = 4
 
-    epoch = runPreception(bits, 0.5)
+    runTask()
+    exit()
+
+    epoch, diff = runPreception(bits, 0.5)
 
     print()
     testInts = [14, 15]
