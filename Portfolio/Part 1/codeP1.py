@@ -209,7 +209,7 @@ def runPreception(bits, learningRate) -> int:
     global W1, W2
 
     showProgress = True
-    r = 1000
+    r = 100000
 
     # TODO: Break when the difference is 0.05
     for epoch in range(r + 1):
@@ -248,14 +248,26 @@ def runPreception(bits, learningRate) -> int:
             print()
         return epoch, diff
 
+def test():
+    testInts = [14, 15]
+
+    for ti in testInts:
+        i = intToSplitBites(ti, bits)
+        i = normalizeData(i, bits)
+        oh, o, oDer = forwardPropagate(i)
+        print(ti, o)
+
 def runTask():
     bits = 4
     lrA, epochA = [], []
 
     for lr in np.arange(0.05, 0.55, 0.05):
+        print(f'Learning rate: {round(lr,2)}')
         epoch, diff = runPreception(bits, lr)
+        test()
         lrA.append(lr)
         epochA.append(epoch)
+        print()
 
     plt.plot(lrA, epochA)
     plt.title('Learning of even or odd')
@@ -266,8 +278,8 @@ def runTask():
 if __name__ == '__main__':
     bits = 4
 
-    runTask()
-    exit()
+    # runTask()
+    # exit()
 
     epoch, diff = runPreception(bits, 0.5)
 
