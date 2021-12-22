@@ -278,8 +278,8 @@ def runTask():
 if __name__ == '__main__':
     bits = 4
 
-    # runTask()
-    # exit()
+    runTask()
+    exit()
 
     epoch, diff = runPreception(bits, 0.5)
 

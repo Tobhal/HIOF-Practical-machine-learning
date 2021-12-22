@@ -2,7 +2,6 @@
 # from sko.GA import GA
 
 from math import sqrt
-from typing import Dict
 import matplotlib.pyplot as plt
 
 # Importing supporting classes for storing data
@@ -41,7 +40,7 @@ parensToKeep = 20
 
 showProgress = True
 
-iterations = (1, 1000)
+iterations = (1, 10000)
 
 def updateMinMax(x, y):
     global xMax, xMin, yMax, yMin
@@ -498,6 +497,7 @@ def checkWithSolution():
     Run true all files and calculate for each. Then print the calculated cost with the solution cost
     """
     for i in range(1, 23):
+        print(f'File {i}')
         try:
             cost = testThing(i)
             solutionCost = readSolutionFile(i)
@@ -505,6 +505,8 @@ def checkWithSolution():
         except Exception as e:
             # logging.error(traceback.format_exc())
             print(f'Error with file: {i}')
+        
+        print()
 
 # 
 # Test things
@@ -571,7 +573,8 @@ if __name__ == '__main__':
     # print(testThing(1))
 
     checkWithSolution()
-    """
+    
+    exit()
     parseFile(f'p03')
 
     padding = 5
@@ -592,9 +595,9 @@ if __name__ == '__main__':
         # depot.addToPlot(ax)
         depot.addBestToPlot(ax)
 
-    # plt.show()
+    plt.show()
 
-    """
+    
 
 """
 FIX: Not able to distrobute costumers correctly: [4, 6, 7, 10, 11]
