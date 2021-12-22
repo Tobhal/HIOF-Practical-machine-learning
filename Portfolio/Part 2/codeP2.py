@@ -9,7 +9,7 @@ from costumer import Costumer
 from vehicle import Vehicle
 from depot import Depot
 
-import sys, random, copy
+import sys, random, copy, timeit
 import traceback, logging   # Error catching
 
 depots = []
@@ -40,7 +40,7 @@ parensToKeep = 20
 
 showProgress = True
 
-iterations = (1, 10000)
+iterations = (1, 100000)
 
 def updateMinMax(x, y):
     global xMax, xMin, yMax, yMin
@@ -405,11 +405,13 @@ def applyCrossover2(parents: list[tuple[Vehicle, Vehicle]]) -> None:
             if canAdd1 and canAdd2:
                 for c in p1CC:
                     status = p2.addCostumerOptimal(c)
+                    # status = p2.addCostumer(c)
                     # print('Adding', c.i, 'to', p2.id)
                     # print(status)
                 
                 for c in p2CC:
                     status = p1.addCostumerOptimal(c)
+                    # status = p1.addCostumer(c)
                 #     print('Adding', c.i, 'to', p1.id)
                 #     print(status)
 
@@ -573,9 +575,9 @@ if __name__ == '__main__':
     # print(testThing(1))
 
     checkWithSolution()
-    
     exit()
-    parseFile(f'p03')
+    
+    parseFile(f'p20')
 
     padding = 5
     ax.set_xlim(xMin - padding, xMax + padding)

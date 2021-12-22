@@ -21,6 +21,8 @@
         linenos
     }
 
+
+
     \section{Chromosome representation}
     \subsection{My choice}
     I chose to represent the data using a normal Python class structure. I generate a class for \texttt{Depot}, \texttt{Vehicle} and \texttt{Costumer}. I store all the depots in a list, in main. The depots store all of the relevant information together with some lists. These lists contains all costumers, vehicles and the best vehicles. This means that there is no set way the data is defined. 
@@ -70,11 +72,20 @@
     \subsection{My observations}
     I have found that at the start of the code running the learning/improvements are large and many. After some time the improvements slow down and normalize close to a value. That value is the code normalizes around is in my case some distance off what is meant to be.
 
-    When the population size is larger the algorithm takes longer time. This is because of how I have written the crossover
+    When the population size is larger the algorithm takes longer time. This is because of how I have written the crossover function. It takes longer to add a costumer when the costumer is added at the most optimal location. This function is not used when everything is initialized.
 
     Because of time constraints I have not gotten the time to compleat the algorithm and put in the time to optimize things. This results in the code not working for all files. This is because of how i distribute the costumer. 
 
-    \section{GitHub}
+    \section{Final things}
+    I did not have time to compleat this task. With everything to read and understand and trying to write the code my self, the task was just to large for the time. I started with this task thinking that task 1 would take less time. Then I did task 1 to be done quick with that, but when that task took longer then expected I did not get the time to compleat this.
+    
+    There are things that I would like to have added, like a mutation function. I also know that with a better crossover function combined with a mutation function the result will go way down. With each costumer assigned to its closes depot I do get some better result, but still not close to the required score.
+
+    \subsection{Running the code}
+    To get the result from each file just run the file. This will run 100 000 iterations for each file, unless there is some problems distorting the costumers, then the file is skipped (This is most normally file 6, 7, 10, 11). This is because there is a problem with adding all costumers, so I waited with fixing this and did not get the time to fix it.
+    If the code should plot the route then line \texttt{577} and \texttt{578} needs to be commented out and correct file number needs to be added in the function on line \texttt{580}. This will also print the result in the format like the solution files, but not write it to a file (again because of time).
+
+    \subsection{GitHub}
     I have used GitHub for version control. This means that the code is accessible on GitHub. The GitHub account the code is uploaded to is Tobhal (https://github.com/Tobhal) and is my own account.
 
 \end{document}

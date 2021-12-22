@@ -23,8 +23,6 @@
         linenos
     }
 
-    I did not get the time to compleat this task. So the implementation is incomplete. I think the problem is with how I calculate the error. This results in the ANN learning that even and odd number are around 0.5 in value, so it learns wrong. There can also be something with the backpropegation that also enforces this, but I don't have the time to test. If the learning part is fixed the rest of the code should to what the task asks, except for breaking the learning when the difference from learning and actual value is 0.05. The code is looping \texttt{r} number of times. The report is written based on what I under stand the ANN works, but I have not been able to produce the data to back up the statements.
-
     \section{The code}
     I have decided to write the code to support 1 sett of learning data for each epoch. This is because I have the ability to ranomly create data for the ANN to learn from, using the functions \texttt{intToSplitBites(int, bits)} then \texttt{normalizeData(int, bits)}. A array of 4 elements is created in the first function, then the data is normalizes within 0 to 1 to make the ANN work. With some more work the code can support multiple setts of learning data each epoch.
 
@@ -74,7 +72,13 @@
 
     This does not give a lot of meaning, but this is what I am getting.
 
-    \section{GitHub}
+    \section{Final things}
+    I did not get the time to compleat this task. So the implementation is incomplete. I think the problem is with how I calculate the error. This results in the ANN learning that even and odd number are around 0.5 in value, so it learns wrong. There can also be something with the backpropegation that also enforces this, but I don't have the time to test. If the learning part is fixed the rest of the code should to what the task asks, except for breaking the learning when the difference from learning and actual value is 0.05. The code is looping \texttt{r} number of times. The report is written based on what I under stand the ANN works, but I have not been able to produce the data to back up the statements.
+
+    \subsection{Running the code}
+    Just launch the file
+
+    \subsection{GitHub}
     I have used GitHub for version control. This means that the code is accessible on GitHub. The GitHub account the code is uploaded to is Tobhal (https://github.com/Tobhal) and is my own account. 
 
 \end{document}
